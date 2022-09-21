@@ -50,7 +50,11 @@ nota1 = float(input("Digite a 1a nota:"))
 nota2 = float(input("Digite a 2a nota:"))
 nota3 = float(input("Digite a 3a nota:"))
 nota4 = float(input("Digite a 4a nota:"))
-media = round((nota1 + nota2 + nota3 + nota4) / 4, 2)
-print("Sua média é", media)
+notas = [nota1, nota2, nota3, nota4]
+media = round(sum(notas) / len(notas), 2)
+minimo = min(notas)
+maximo = max(notas)
+print("Sua média é ", media, ".", " Sua nota máxima foi ", 
+maximo, ".", " E sua menor nota foi ", minimo, sep="")
 # %%
  
