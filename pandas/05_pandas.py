@@ -64,4 +64,54 @@ plt.show()
 
 # COMMAND ----------
 
+df_produto = spark.table("silver_olist.products").toPandas()
+df_order_items = spark.table("silver_olist.order_items").toPandas()
 
+df_order_items.head()
+
+# COMMAND ----------
+
+# FUNCIONA, MAS NÃO É BONITO
+df_join_1 = df_order_items.merge(df_produto, how='left', on='idProduct')
+df_join_2 = df_join_1.merge(df_sellers, how='left', on='idSeller')
+
+df_result = df_join_2.rename(columns = {"nrZipPrefix": "nrZipPrefixSeller",
+                                        "descCity":"descCitySeller",
+                                        "descState": "descStateSeller" })
+
+df_result
+
+# COMMAND ----------
+
+df_result = (df_order_items.merge(df_produto, how='left', on='idProduct')
+                          .merge(df_sellers, how='left', on='idSeller')
+                          .rename(columns = {"nrZipPrefix": "nrZipPrefixSeller",
+                                             "descCity":"descCitySeller",
+                                             "descState": "descStateSeller" }))
+df_result.head()
+
+# COMMAND ----------
+
+df_result = (df_order_items.merge(df_produto, how='left', on='idProduct')
+                          .merge(df_sellers, how='left', on='idSeller')
+                          .rename(columns = {"nrZipPrefix": "nrZipPrefixSeller",
+                                             "descCity":"descCitySeller",
+                                             "descState": "descStateSeller" }))
+df_result.groupby(by=["descCategoryName"])[['idOrder']]
+         .count()
+         .reset_index()
+         .rename(columns={'idOrder': 'qtIdOrder'})
+
+# COMMAND ----------
+
+df_result = (df_order_items.merge(df_produto, how='left', on='idProduct')
+                           .merge(df_sellers, how='left', on='idSeller')
+                           .rename(columns = {"nrZipPrefix": "nrZipPrefixSeller",
+                                              "descCity":"descCitySeller",
+                                              "descState": "descStateSeller" }))
+
+df_new = (df_result.groupby(by=["descCategoryName"])[['idOrder', 'idSeller']]  # Agrupa por descCategoryName, fazendo calculo em ['idOrder']
+                  .agg( {"idOrder": ['count'],
+                         "idSeller": 'nunique'})                               # Realiza a contagem de ['idOrder']
+                  .reset_index())                    # Renomeia o idOrder para qtIdOrder
+df_new
